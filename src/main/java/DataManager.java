@@ -7,16 +7,13 @@
 import java.io.File;
 
 import org.apache.spark.api.java.*;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.SparkConf;
-import org.apache.spark.storage.StorageLevel;
-
 
 public class DataManager 
 {
 	private static DataManager instance;
 	private JavaRDD<String> data;
+	private JavaRDD<String> legacyData;
 	
 	SparkConf conf = new SparkConf()
 		.setAppName("UniversityAnalysis")
@@ -35,6 +32,11 @@ public class DataManager
 		sc.setLogLevel("WARN");
 		data = sc.textFile(pathToData);
 		data.cache();
+		
+		String legacyFilePath = new File("").getAbsolutePath();
+		String legacyPathToData = legacyFilePath.concat("/src/main/resources/MERGED2012_PP.csv");
+		legacyData = sc.textFile(legacyPathToData);
+		legacyData.cache();
 	}
 	
 	public static DataManager getDataManager()
@@ -49,6 +51,11 @@ public class DataManager
 	public JavaRDD<String> getData()
 	{
 		return data;
+	}
+	
+	public JavaRDD<String> getLegacyData()
+	{
+		return legacyData;
 	}
 	
 	public void cleanUp()

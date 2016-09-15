@@ -18,17 +18,17 @@ public class UserInterface
 		System.out.println(title + "\n");
 		System.out.print("Welcome! Please pick one of the options below: \n"
 				+ "\t1: Seach for a school\n"
-				+ "\t2: Top - 10 search based on a statistic\n"
-				+ "\t3: Exit\n\n");
+				+ "\t2: Top - 50 search based on a statistic\n"
+				+ "\t3: View trend over time\n"
+				+ "\t4: Exit\n\n");
 	}
 	
 	public void getInput()
 	{
 		Scanner kbd = new Scanner(System.in);
 		int function = 0;
-		String input = "";
-		String[] args;
-		while(function != 3)
+		String[] args = new String[3];
+		while(function != 4) 
 		{
 			System.out.print("Selection (number): ");
 			if (kbd.hasNextInt()) //Verifies the input is an integer
@@ -40,23 +40,27 @@ public class UserInterface
 			switch (function) {
 			case 1: //Search for school
 				System.out.print("School to search for: ");
-				input = kbd.nextLine();
+				args[1] = kbd.nextLine();
 				break;
 			case 2: //Top - 10 Search
 				//showStatistics();
 				System.out.print("Top 50 schools in: ");
-				input = kbd.nextLine();
+				args[1] = kbd.nextLine();
 				break;
-			case 3: //Exit
-				function = 3;
+			case 3: //Trend over time
+				System.out.print("School: ");
+				args[1] = kbd.nextLine(); //School
+				System.out.print("Statistic to analyze: ");
+				args[2] = kbd.nextLine(); //Statistic
+				break;
+			case 4: //Exit
+				function = 4;
 				break;
 			default:
 				System.out.println("Command not recognized! Please enter the number of the function you would like to perform.\n");
 				break;
 			}
-			args = new String[2];
 			args[0] = String.valueOf(function);
-			args[1] = input;
 			
 			handleOutput(analyzer.analyze(args), function);
 		}
@@ -97,23 +101,14 @@ public class UserInterface
 					}
 				}
 				break;
+			case 3: //Trend over time
+				int k = 1;
+				for(String[] pair : results)
+				{
+					System.out.println(k++ + ". " + pair[0] + " " + pair[1]);
+				}
 			default:
 				break;
 		}
 	}
-	
-	private void showStatistics()
-	{
-		System.out.println("Find the top - 10 schools for the following statistics: ");
-		Set<String> keys = analyzer.headerMap.keySet();
-		int index = 1;
-		for (String str : keys)
-		{
-			if (index++ % 15 == 0)
-			{ System.out.print("\n"); }
-			System.out.print(str + " ");
-			
-		}
-	}
-	
 }
