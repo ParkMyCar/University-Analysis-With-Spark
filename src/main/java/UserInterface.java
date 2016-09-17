@@ -3,6 +3,8 @@ import java.util.*;
 public class UserInterface 
 {
 	Analyzer analyzer = new Analyzer();
+	
+	//Public Methods
 	public UserInterface()
 	{
 		/*<TODO> At a later date. Add a settings file that will contain settings or preferences
@@ -68,6 +70,7 @@ public class UserInterface
 		DataManager.getDataManager().cleanUp();
 	}
 	
+	//Private Methods
 	private void handleOutput(List<String[]> results, int function)
 	{
 		switch (function)
@@ -102,10 +105,18 @@ public class UserInterface
 				}
 				break;
 			case 3: //Trend over time
-				int k = 1;
+				int k = 2013;
 				for(String[] pair : results)
 				{
-					System.out.println(k++ + ". " + pair[0] + " " + pair[1]);
+					float value = Float.parseFloat(pair[0]);
+					if (value == -1.0)
+					{
+						System.out.println(k-- + ": N/A\t" + pair[1]);
+					}
+					else
+					{
+						System.out.println(k-- + ": " + value + "\t" + pair[1]);
+					}
 				}
 			default:
 				break;

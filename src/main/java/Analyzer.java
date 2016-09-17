@@ -14,10 +14,12 @@ import java.io.*;
 
 public class Analyzer 
 {
+	//Private Member Variables
 	public static Hashtable<String, Integer> headerMap = new Hashtable<String, Integer>();
 	private static String schoolName = "";
 	private static String schoolStatistic = "";
 	
+	//Public Methods
 	public Analyzer()
 	{
 		buildHeader();
@@ -27,7 +29,7 @@ public class Analyzer
 	{
 		JavaRDD<String> data = DataManager.getDataManager().getData();
 		JavaRDD<String[]> schoolsArray = data.map(new SplitLines());
-
+		
  		List<String[]> retVal = new ArrayList<String[]>();
 		
 		int funcType = Integer.parseInt(args[0]);
@@ -59,13 +61,17 @@ public class Analyzer
 				List<Tuple2<Float, String>> legacyTupleList = legacyArray.collect();
 				List<Tuple2<Float, String>> currentTupleList = currentArray.collect();
 				
-				List<String[]> analyzedDataList = new ArrayList<String[]>();
+				List<String[]> analyzedDataList = new ArrayList<String[]>(); //<TODO> I feel like there must be a better way to combine the Tuple lists but for now this works
 				for(int i = 0; i < currentTupleList.size(); i++)
 				{
 					String[] temp = { String.valueOf(currentTupleList.get(i)._1), currentTupleList.get(i)._2 };
-					String[] temp2 = { String.valueOf(legacyTupleList.get(i)._1), legacyTupleList.get(i)._2 };
 					analyzedDataList.add(temp);
-					analyzedDataList.add(temp2);
+				}
+				
+				for (int j = 0; j < legacyTupleList.size(); j++)
+				{
+					String[] temp = { String.valueOf(legacyTupleList.get(j)._1), legacyTupleList.get(j)._2 };
+					analyzedDataList.add(temp);
 				}
 				return analyzedDataList;
 			default:
@@ -92,7 +98,7 @@ public class Analyzer
     	static final long serialVersionUID = 2L;
     	public Boolean call(String[] schoolArgs)
     	{ 
-    		return schoolArgs[3].contains(schoolName); 
+    		return schoolArgs[3].toUpperCase().contains(schoolName.toUpperCase()); 
     	}
     }
     
