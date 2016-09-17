@@ -22,15 +22,16 @@ public class UserInterface
 				+ "\t1: Seach for a school\n"
 				+ "\t2: Top - 50 search based on a statistic\n"
 				+ "\t3: View trend over time\n"
-				+ "\t4: Exit\n\n");
+				+ "\t4: Correlation between two statistics\n"
+				+ "\t5: Exit\n\n");
 	}
 	
 	public void getInput()
 	{
 		Scanner kbd = new Scanner(System.in);
 		int function = 0;
-		String[] args = new String[3];
-		while(function != 4) 
+		String[] args = new String[4];
+		while(function != 5) 
 		{
 			System.out.print("Selection (number): ");
 			if (kbd.hasNextInt()) //Verifies the input is an integer
@@ -50,13 +51,21 @@ public class UserInterface
 				args[1] = kbd.nextLine();
 				break;
 			case 3: //Trend over time
-				System.out.print("School: ");
+				System.out.print("School to analyze : ");
 				args[1] = kbd.nextLine(); //School
 				System.out.print("Statistic to analyze: ");
 				args[2] = kbd.nextLine(); //Statistic
 				break;
-			case 4: //Exit
-				function = 4;
+			case 4: //Correlation between two statistics
+				System.out.print("School to analyze: ");
+				args[1] = kbd.nextLine(); //School
+				System.out.print("First statistic: ");
+				args[2] = kbd.nextLine(); //First statistic for correlation
+				System.out.print("Second statistic: ");
+				args[3] = kbd.nextLine(); //Second statistic for correlation
+				break;
+			case 5: //Exit
+				function = 5;
 				break;
 			default:
 				System.out.println("Command not recognized! Please enter the number of the function you would like to perform.\n");
@@ -117,6 +126,28 @@ public class UserInterface
 					{
 						System.out.println(k-- + ": " + value + "\t" + pair[1]);
 					}
+				}
+			case 4: //Correlated Statistics
+				int l = 2013;
+				String schoolName = results.get(0)[0];
+				double correlationValue = Double.parseDouble(results.get(0)[1]);
+				String firstStat = results.get(0)[2];
+				String secondStat = results.get(0)[3];
+				System.out.println(schoolName + "\nCorrelation between " + firstStat + " and " + secondStat + ": " + correlationValue);
+				for (int m = 1; m < results.size(); m++)
+				{
+					String[] pair = results.get(m);
+					float value1 = Float.parseFloat(pair[1]);
+					float value2 = Float.parseFloat(pair[2]);
+					String str1 = pair[1];
+					String str2 = pair[2];
+					
+					if (value1 == -1.0)
+					{ str1 = "N/A"; }
+					if (value2 == -1.0)
+					{ str2 = "N/A"; }
+					
+					System.out.println(l-- + ":\t" + str1 + "\t\t" + str2);
 				}
 			default:
 				break;
