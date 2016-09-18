@@ -1,10 +1,14 @@
 import java.util.*;
+import scala.Tuple2;
 
 public class UserInterface 
 {
 	Analyzer analyzer = new Analyzer();
 	
-	//Public Methods
+	//Private Member Variables
+	private List<Tuple2<String, String>> keys = new ArrayList<Tuple2<String, String>>();
+	
+	//Constructor
 	public UserInterface()
 	{
 		/*<TODO> At a later date. Add a settings file that will contain settings or preferences
@@ -21,12 +25,18 @@ public class UserInterface
 				+ "\t3: View trend over time\n"
 				+ "\t4: Correlation between two statistics\n"
 				+ "\t5: Exit\n\n");
+		
+		fillKeysList();
 	}
 	
+	//Public Methods
 	public void getInput()
 	{
 		Scanner kbd = new Scanner(System.in);
 		int function = 0;
+		String stat = null;
+		String stat2 = null;
+		boolean analyze = true;
 		String[] args = new String[4];
 		while(function != 5) 
 		{
@@ -37,30 +47,59 @@ public class UserInterface
 			}
 			kbd.nextLine();
 			
+			analyze = true;
+			
 			switch (function) {
 			case 1: //Search for school
 				System.out.print("School to search for: ");
 				args[1] = kbd.nextLine();
 				break;
+				
 			case 2: //Top - 10 Search
-				//showStatistics();
+				listStatistics();
 				System.out.print("Top 50 schools in: ");
-				args[1] = kbd.nextLine();
+				stat = kbd.nextLine();
+				if (interpretInput(stat)._1)
+					args[1] = interpretInput(stat)._2;
+				else
+					analyze = false;
+				
 				break;
 			case 3: //Trend over time
+				listStatistics();
 				System.out.print("School to analyze : ");
 				args[1] = kbd.nextLine(); //School
+				
 				System.out.print("Statistic to analyze: ");
-				args[2] = kbd.nextLine(); //Statistic
+				stat = kbd.nextLine(); //Statistic
+				if (interpretInput(stat)._1)
+					args[2] = interpretInput(stat)._2;
+				else
+					analyze = false;
+				
 				break;
+				
 			case 4: //Correlation between two statistics
+				listStatistics();
 				System.out.print("School to analyze: ");
 				args[1] = kbd.nextLine(); //School
+				
 				System.out.print("First statistic: ");
-				args[2] = kbd.nextLine(); //First statistic for correlation
+				stat = kbd.nextLine(); //First statistic for correlation
+				if (interpretInput(stat)._1)
+					args[2] = interpretInput(stat)._2;
+				else
+					analyze = false;
+				
 				System.out.print("Second statistic: ");
-				args[3] = kbd.nextLine(); //Second statistic for correlation
+				stat2 = kbd.nextLine(); //Second statistic for correlation
+				if (interpretInput(stat2)._1)
+					args[3] = interpretInput(stat2)._2;
+				else
+					analyze = false;
+				
 				break;
+				
 			case 5: //Exit
 				function = 5;
 				break;
@@ -70,7 +109,11 @@ public class UserInterface
 			}
 			args[0] = String.valueOf(function);
 			
-			handleOutput(analyzer.analyze(args), function);
+			if (analyze)
+				handleOutput(analyzer.analyze(args), function);
+			
+			else
+				System.out.println("There was invalid input, please try again!");
 		}
 		kbd.close();
 		DataManager.getDataManager().cleanUp();
@@ -124,6 +167,7 @@ public class UserInterface
 						System.out.println(k-- + ": " + value + "\t" + pair[1]);
 					}
 				}
+				break;
 			case 4: //Correlated Statistics
 				int l = 2013;
 				String schoolName = results.get(0)[0];
@@ -146,8 +190,96 @@ public class UserInterface
 					
 					System.out.println(l-- + ":\t" + str1 + "\t\t" + str2);
 				}
+				break;
 			default:
 				break;
+		}
+	}
+
+	private Tuple2<Boolean, String> interpretInput(String str)
+	{
+		if (tryParse(str))
+		{
+			int index = Integer.parseInt(str);
+			if (index > 0 && index < keys.size())
+			{
+				return new Tuple2<Boolean, String>(true, keys.get(index-1)._2);
+			}
+		}
+		else if (!tryParse(str))
+		{
+			for (Tuple2<String, String> pair : keys)
+			{
+				if (str.equalsIgnoreCase(pair._1))
+				{
+					return new Tuple2<Boolean, String>(true, pair._2);
+				}
+			}
+		}
+		return new Tuple2<Boolean, String>(false, "Invalid input, please try again");
+	}
+	
+	private void listStatistics()
+	{		
+		System.out.println("\nSTATISTICS: ");
+		
+		for (int i = 0; i < keys.size(); i++)
+		{
+			if (i != 0 && i%3 == 0)
+			{
+				System.out.printf("%-65.65s", "\n" + (i+1) + ". " + keys.get(i)._1);
+			}
+			else
+			{
+				System.out.printf("%-65.65s", (i+1) + ". " + keys.get(i)._1);
+			}	
+		}
+		System.out.println("\n\nSelect the statistic by typing the name or using the number!\n");
+		
+	}
+	
+	private void fillKeysList()
+	{
+		keys.add(new Tuple2<String, String>("Admission Rate", "ADM_RATE"));
+		keys.add(new Tuple2<String, String>("25th Percentile of Reading SAT Scores", "SATVR25"));
+		keys.add(new Tuple2<String, String>("75th Percentile of Reading SAT Scores", "SATVR75"));
+		keys.add(new Tuple2<String, String>("25th Percentile of Math SAT Scores", "SATMT25"));
+		keys.add(new Tuple2<String, String>("75th Percentile of Math SAT Scores", "SATMT75"));
+		keys.add(new Tuple2<String, String>("25th Percentile of Writing SAT Scores", "SATWR25"));
+		keys.add(new Tuple2<String, String>("75th Percentile of Writing SAT Scores", "SATWR75"));
+		keys.add(new Tuple2<String, String>("Midpoint of Reading SAT Scores", "SATVRMID"));
+		keys.add(new Tuple2<String, String>("Midpoint of Math SAT Scores", "SATMTMID"));
+		keys.add(new Tuple2<String, String>("Midpoint of Writing SAT Scores", "SATWRMID"));
+		keys.add(new Tuple2<String, String>("Percentage of degrees awarded in Education", "PCIP13"));
+		keys.add(new Tuple2<String, String>("Percentage of degreees awarded in Engineering", "PCIP14"));
+		keys.add(new Tuple2<String, String>("Percentage of degrees awarded in Biology", "PCIP26"));
+		keys.add(new Tuple2<String, String>("Percentage of degrees awarded in Math", "PCIP27"));
+		keys.add(new Tuple2<String, String>("Percentage of degrees awarded in Social Sciences", "PCIP45"));
+		keys.add(new Tuple2<String, String>("Percentage of degrees awarded in Business", "PCIP52"));
+		keys.add(new Tuple2<String, String>("Undergraduate Student Population", "UGDS"));
+		keys.add(new Tuple2<String, String>("Percent of undergradute students who are white", "UGDS_WHITE"));
+		keys.add(new Tuple2<String, String>("Percent of undergradute students who are black", "UGDS_BLACK"));
+		keys.add(new Tuple2<String, String>("Percent of undergradute students who are Hispanic", "UGDS_HISP"));
+		keys.add(new Tuple2<String, String>("Percent of undergradute students who are Asian", "UGDS_ASIAN"));
+		keys.add(new Tuple2<String, String>("In-State Tuition", "TUITIONFEE_IN"));
+		keys.add(new Tuple2<String, String>("Out-of-State Tuition", "TUITIONFEE_OUT"));
+		keys.add(new Tuple2<String, String>("Net tuition revenue per full time student", "TUITFTE"));
+		keys.add(new Tuple2<String, String>("Instructional expenditures per full time student", "INEXPFTE"));
+		keys.add(new Tuple2<String, String>("Average faculty salary", "AVGFACSAL"));
+		keys.add(new Tuple2<String, String>("Graduation rate for first-time students", "C150_4"));
+		keys.add(new Tuple2<String, String>("Retention rate for first-time students", "RET_FT4"));
+	}
+	
+	private boolean tryParse(String str)
+	{
+		try
+		{
+			Integer.parseInt(str);
+			return true;
+		}
+		catch (NumberFormatException e)
+		{
+			return false;
 		}
 	}
 }
